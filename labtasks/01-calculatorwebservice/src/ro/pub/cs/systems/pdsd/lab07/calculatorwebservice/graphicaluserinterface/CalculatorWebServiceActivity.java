@@ -47,6 +47,9 @@ public class CalculatorWebServiceActivity extends Activity {
 			float op1 = 0, op2 = 0;
 			String op1String = operator1EditText.getText().toString();
 			String op2String = operator2EditText.getText().toString();
+			
+			String errorMessage = null;
+			
 			if(!op1String.isEmpty() && !op2String.isEmpty() ) {
 				op1 = Float.valueOf(operator1EditText.getText().toString());
 				op2 = Float.valueOf(operator2EditText.getText().toString());			

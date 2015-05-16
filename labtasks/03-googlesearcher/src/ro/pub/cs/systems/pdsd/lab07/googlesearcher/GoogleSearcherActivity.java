@@ -1,5 +1,15 @@
 package ro.pub.cs.systems.pdsd.lab07.googlesearcher;
 
+import java.io.IOException;
+
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.ResponseHandler;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.BasicResponseHandler;
+import org.apache.http.impl.client.DefaultHttpClient;
+
+import ro.pub.cs.systems.pdsd.lab07.googlesearcher.general.Constants;
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -8,6 +18,7 @@ import android.view.View;
 import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 public class GoogleSearcherActivity extends Activity {
 	
@@ -36,6 +47,20 @@ public class GoogleSearcherActivity extends Activity {
 			// - mimetype is text/html
 			// - encoding is UTF-8
 			// - history is null
+			HttpClient httpClient = new DefaultHttpClient();
+			HttpGet httpGet = new HttpGet(Constants.GOOGLE_INTERNET_ADDRESS+keyword);
+			ResponseHandler<String> responseHandler = new BasicResponseHandler();
+			String content = null;
+			try {
+				 content = httpClient.execute(httpGet,responseHandler);
+			} catch (ClientProtocolException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			googleResultsWebView.loadDataWithBaseURL("http://www.google.com", content, "text/html", "UTF-8", null);
 
 		}
 	}
@@ -48,7 +73,18 @@ public class GoogleSearcherActivity extends Activity {
 			
 			// TODO: exercise 6a)
 			// obtain the keyword from keywordEditText
+			String keyword = keywordEditText.getText().toString();
 			// signal an empty keyword through an error message displayed in a Toast window
+			if(keyword == null || keyword.isEmpty()) {
+				Toast.makeText(getApplication(), Constants.EMPTY_KEYWORD_ERROR_MESSAGE, Toast.LENGTH_LONG).show();
+			} else {
+				String[] keywords = keyword.split(" ");
+				keyword = Constants.SEARCH_PREFIX + keywords[0];
+				for (int k = 1; k < keywords.length; k++) {
+					keyword += "+" + keywords[k];
+				}
+				new GoogleSearcherThread(keyword).start();
+			}
 			// split a multiple word (separated by space) keyword and link them through +
 			// prepend the keyword with "search?q=" string
 			// start the GoogleSearcherThread passing the keyword
